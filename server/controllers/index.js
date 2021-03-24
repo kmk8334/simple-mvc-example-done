@@ -144,12 +144,12 @@ const hostPage2 = (req, res) => {
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
 const hostPage3 = (req, res) => {
-    // res.render takes a name of a page to render.
-    // These must be in the folder you specified as views in your main app.js file
-    // Additionally, you don't need .jade because you registered the file type
-    // in the app.js as jade. Calling res.render('index')
-    // actually calls index.jade. A second parameter of JSON can be passed
-    // into the jade to be used as variables with #{varName}
+  // res.render takes a name of a page to render.
+  // These must be in the folder you specified as views in your main app.js file
+  // Additionally, you don't need .jade because you registered the file type
+  // in the app.js as jade. Calling res.render('index')
+  // actually calls index.jade. A second parameter of JSON can be passed
+  // into the jade to be used as variables with #{varName}
   res.render('page3');
 };
 
@@ -175,16 +175,6 @@ const hostPage4 = (req, res) => {
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
 const getCatName = (req, res) => {
-  // res.json returns json to the page.
-  // Since this sends back the data through HTTP
-  // you can't send any more data to this user until the next response
-  res.json({ name: lastAdded.name });
-};
-
-// function to handle get request to send the name
-// controller functions in Express receive the full HTTP request
-// and a pre-filled out response object to send
-const getDogName = (req, res) => {
   // res.json returns json to the page.
   // Since this sends back the data through HTTP
   // you can't send any more data to this user until the next response
@@ -277,7 +267,6 @@ const setDogName = (req, res) => {
   return res;
 };
 
-
 // function to handle requests search for a name and return the object
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
@@ -352,11 +341,19 @@ const searchDogName = (req, res) => {
     }
 
     // if a match, update the dog's age before sending it back
-    doc.age++;
+    const updatedDog = doc;
+    updatedDog.age += 1;
     const savePromise = doc.save();
-    savePromise.then(() => res.json({ name: doc.name, breed: doc.breed, age: doc.age }));
+    savePromise.then(() => res.json({
+      name: updatedDog.name,
+      breed: updatedDog.breed,
+      age: updatedDog.age,
+    }));
     // if save error, just return an error for now
-    savePromise.catch((err) => res.status(500).json({ err }));
+    savePromise.catch((errSave) => res.status(500).json({ errSave }));
+
+    // Send the updated match back
+    return savePromise;
   });
 };
 
@@ -411,7 +408,6 @@ module.exports = {
   readCat,
   readDog,
   getCatName,
-  getDogName,
   setCatName,
   setDogName,
   updateLastCat,
