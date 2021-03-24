@@ -12,7 +12,8 @@ const defaultData = {
 };
 
 // object for us to keep track of the last Cat we made and dynamically update it sometimes
-let lastAdded = new Cat(defaultData);
+let lastAddedCat = new Cat(defaultData);
+let lastAddedDog = new Dog(defaultData);
 
 // function to handle requests to the main page
 // controller functions in Express receive the full HTTP request
@@ -25,7 +26,8 @@ const hostIndex = (req, res) => {
   // actually calls index.jade. A second parameter of JSON can be passed
   // into the jade to be used as variables with #{varName}
   res.render('index', {
-    currentName: lastAdded.name,
+    currentCatName: lastAddedCat.name,
+    currentDogName: lastAddedDog.name,
     title: 'Home',
     pageName: 'Home Page',
   });
@@ -178,7 +180,7 @@ const getCatName = (req, res) => {
   // res.json returns json to the page.
   // Since this sends back the data through HTTP
   // you can't send any more data to this user until the next response
-  res.json({ name: lastAdded.name });
+  res.json({ name: lastAddedCat.name });
 };
 
 // function to handle a request to set the name
@@ -212,11 +214,11 @@ const setCatName = (req, res) => {
   const savePromise = newCat.save();
 
   savePromise.then(() => {
-    // set the lastAdded cat to our newest cat object.
+    // set the lastAddedCat to our newest cat object.
     // This way we can update it dynamically
-    lastAdded = newCat;
+    lastAddedCat = newCat;
     // return success
-    res.json({ name: lastAdded.name, beds: lastAdded.bedsOwned });
+    res.json({ name: lastAddedCat.name, beds: lastAddedCat.bedsOwned });
   });
 
   // if error, return it
@@ -254,11 +256,11 @@ const setDogName = (req, res) => {
   const savePromise = newDog.save();
 
   savePromise.then(() => {
-    // set the lastAdded dog to our newest dog object.
+    // set the lastAddedDog to our newest dog object.
     // This way we can update it dynamically
-    lastAdded = newDog;
+    lastAddedDog = newDog;
     // return success
-    res.json({ name: lastAdded.name, breed: lastAdded.breed, age: lastAdded.age });
+    res.json({ name: lastAddedDog.name, breed: lastAddedDog.breed, age: lastAddedDog.age });
   });
 
   // if error, return it
@@ -341,19 +343,19 @@ const searchDogName = (req, res) => {
     }
 
     // if a match, update the dog's age before sending it back
-    const updatedDog = doc;
-    updatedDog.age += 1;
+    lastAddedDog = doc;
+    lastAddedDog.age += 1;
     const savePromise = doc.save();
     savePromise.then(() => res.json({
-      name: updatedDog.name,
-      breed: updatedDog.breed,
-      age: updatedDog.age,
+      name: lastAddedDog.name,
+      breed: lastAddedDog.breed,
+      age: lastAddedDog.age,
     }));
     // if save error, just return an error for now
     savePromise.catch((errSave) => res.status(500).json({ errSave }));
 
     // Send the updated match back
-    return savePromise;
+    return res;
   });
 };
 
@@ -369,15 +371,15 @@ const updateLastCat = (req, res) => {
   // You can treat objects just like that - objects.
   // Normally you'd find a specific object, but we will only
   // give the user the ability to update our last object
-  lastAdded.bedsOwned++;
+  lastAddedCat.bedsOwned++;
 
   // once you change all the object properties you want,
   // then just call the Model object's save function
   // create a new save promise for the database
-  const savePromise = lastAdded.save();
+  const savePromise = lastAddedCat.save();
 
   // send back the name as a success for now
-  savePromise.then(() => res.json({ name: lastAdded.name, beds: lastAdded.bedsOwned }));
+  savePromise.then(() => res.json({ name: lastAddedCat.name, beds: lastAddedCat.bedsOwned }));
 
   // if save error, just return an error for now
   savePromise.catch((err) => res.status(500).json({ err }));
